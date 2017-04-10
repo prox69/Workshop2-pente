@@ -1,0 +1,14 @@
+{
+	"name": "workshop_pente_back",
+  	"version": "0.0.1",
+	"main": "app.js",
+  	"description": "Jeu de Pente Workshop (côté API)",
+  	"dependencies": {
+  		"express" : "4.14.X",
+		"async" : "2.1.X",
+		"underscore" : "1.8.X",
+		"body-parser": "^1.9.0",
+		"jsonwebtoken": "7.1.X"
+	}
+
+}
