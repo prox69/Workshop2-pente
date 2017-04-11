@@ -7,7 +7,9 @@ var async = require("async");
 var underscore = require("underscore");
 var bodyParser = require("body-parser");
 var jsonwebtoken = require("jsonwebtoken");
+var uuid = require("short-uuid");
 var api = require('./include/api');
+var Game = require('./include/Game.js');
 
 /*********** EXPRESS *************/
 var app = express();
@@ -26,9 +28,13 @@ var mods = {
 	app : app,
 	jwt: jsonwebtoken,
 	async : async,
-	_ : underscore
+	_ : underscore,
+	uuid : uuid
 };
 api.load(mods);
+
+/************ PARTIES **************/
+global.GAME = Game.load(mods);
 
 
 /********LANCEMENT**********/
