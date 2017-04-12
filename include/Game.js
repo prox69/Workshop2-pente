@@ -22,7 +22,7 @@ class Game {
 			var translator = this.mods.uuid();
 			if(typeof this.player1.id == 'undefined') {
 				this.player1 = {
-					id : "eJECV9McvXyVxsbWrdzANH",
+					id : translator.new(),
 					name : joueurName,
 					num : 1,
 					color : 'B',
@@ -32,7 +32,7 @@ class Game {
 			}
 			else {
 				this.player2 = {
-					id : "jWY6BVM8wreK3uUUMomfnK",
+					id : translator.new(),
 					name : joueurName,
 					num : 2,
 					color : 'N',
@@ -68,13 +68,13 @@ class Game {
 		this.board = {
 			table : [
 				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,1,0,0,0,1,2,1,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -90,6 +90,7 @@ class Game {
 			// Si playerTurn est à 3, cela signifie que la partie est finie
 			playerTurn : 1,
 			nbTurns : 1,
+			lastStrike : null,
 			prolongation : false,
 			endGame : {}
 		}
@@ -154,10 +155,10 @@ class Game {
     	// Une pente est détectée, on met fin au jeu
     	this.board.endGame = {
     		winner : this.board.playerTurn,
-    		result : this.getPlayer(this.board.playerTurn).name + " a remporté la partie en réalisant une pente.";
+    		result : this['player' + this.board.playerTurn].name + " a remporté la partie en réalisant une pente."
     	};
     	this.status = 3;
-    	this.reinitGame();
+    	//this.reinitGame();
     }
 
     // Vérification Tenaille
@@ -233,10 +234,10 @@ class Game {
 			// Si cinq tenailles, le joueur remporte la victoire
     	this.board.endGame = {
     		winner : this.board.playerTurn,
-    		result : this.getPlayer(this.board.playerTurn).name + " a remporté la partie en réussissant à effectuer 5 tenailles.";
+    		result : this['player' + this.board.playerTurn].name + " a remporté la partie en réussissant à effectuer 5 tenailles."
     	};
     	this.status = 3;
-    	this.reinitGame();
+    	//this.reinitGame();
 		}
 	}
 
