@@ -89,7 +89,7 @@ class Game {
 			],
 			// Si playerTurn est à 3, cela signifie que la partie est finie
 			playerTurn : 1,
-			nbTurns : 1,
+			nbTurns : 0,
 			lastStrike : null,
 			prolongation : false,
 			endGame : {}
@@ -137,20 +137,20 @@ class Game {
 		if(this.board.playerTurn == 1) {
 			this.board.playerTurn = 2;
 		}
-		if(this.board.playerTurn == 2) {
+		else if(this.board.playerTurn == 2) {
 			this.board.playerTurn = 1;
-			this.board.nbTurns++;
 		}
+		this.board.nbTurns++;
 	}
 
 	// Résolution des effets du coup joué
 	resolveStrike(x,y) {
 		// Vérification Pente
 		var align_pent_checks = this.checkAlignment(x,y,this.board.playerTurn,4);
-		var has_a_pente =  ((align_pent_checks[0] + align_pent_checks[4] + 1) > 5)
-									  || ((align_pent_checks[1] + align_pent_checks[5] + 1) > 5)
-									  || ((align_pent_checks[2] + align_pent_checks[6] + 1) > 5)
-									  || ((align_pent_checks[3] + align_pent_checks[7] + 1) > 5);
+		var has_a_pente =  ((align_pent_checks[0] + align_pent_checks[4] + 1) >= 5)
+									  || ((align_pent_checks[1] + align_pent_checks[5] + 1) >= 5)
+									  || ((align_pent_checks[2] + align_pent_checks[6] + 1) >= 5)
+									  || ((align_pent_checks[3] + align_pent_checks[7] + 1) >= 5);
     if(has_a_pente) {
     	// Une pente est détectée, on met fin au jeu
     	this.board.endGame = {
@@ -165,60 +165,60 @@ class Game {
     if(this.status == 2) {
 			var other_player = this.board.playerTurn == 1 ? 2 : 1;
 	    var align_ten_checks = this.checkAlignment(x,y,other_player,2);
-	    this.resolveTenaille(align_ten_checks);
+	    this.resolveTenaille(align_ten_checks,x,y);
 	  }  
 
 	}
 
 	// Résolution d'une tenaille
-	resolveTenaille(align_result) {
+	resolveTenaille(align_result,x,y) {
 		var tenailles = 0;
 		for(var i = 0; i < align_result.length; i++) {
 			if(align_result[i] == 2) {
 				switch(i) {
-					case 0: if(this.board.table[x-3][y] == this.board.playerTurn) { 
+					case 0: if(x-3 >= 0 && this.board[x-3][y] == this.playerTurn) { 
 						this.board.table[x-2][y] = 0;
 						this.board.table[x-1][y] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 1: if(this.board.table[x-3][y+3] == this.board.playerTurn) { 
+					case 1: if(x-3 >= 0 && y+3 <= 18 && this.board[x-3][y+3] == this.playerTurn) { 
 						this.board.table[x-2][y+2] = 0;
 						this.board.table[x-1][y-1] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 2: if(this.board.table[x][y+3] == this.board.playerTurn) { 
+					case 2: if(y+3 <= 18 && this.board[x][y+3] == this.playerTurn) { 
 						this.board.table[x][y+2] = 0;
 						this.board.table[x][y+1] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 3: if(this.board.table[x+3][y+3] == this.board.playerTurn) { 
+					case 3: if(x+3 <= 18 && y+3 <= 18 && this.board[x+3][y+3] == this.playerTurn) { 
 						this.board.table[x+2][y+2] = 0;
 						this.board.table[x+1][y+1] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 4: if(this.board.table[x+3][y] == this.board.playerTurn) { 
+					case 4: if(x+3 <= 18 && this.board[x+3][y] == this.playerTurn) { 
 						this.board.table[x+2][y] = 0;
 						this.board.table[x+1][y] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 5: if(this.board.table[x+3][y-3] == this.board.playerTurn) { 
+					case 5: if(x+3 <= 18 && y-3 >= 0 && this.board[x+3][y-3] == this.playerTurn) { 
 						this.board.table[x+2][y-2] = 0;
 						this.board.table[x+1][y-1] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 6: if(this.board.table[x][y-3] == this.board.playerTurn) { 
+					case 6: if(y-3 >= 0 && this.board[x][y-3] == this.playerTurn) { 
 						this.board.table[x][y-2] = 0;
 						this.board.table[x][y-1] = 0;
 						tenailles++; 
 					} 
 					break;
-					case 7: if(this.board.table[x-3][y-3] == this.board.playerTurn) { 
+					case 7: if(y-3 >= 0 && x-3 >= 0 && this.board[x-3][y-3] == this.playerTurn) { 
 						this.board.table[x-2][y-2] = 0;
 						this.board.table[x-1][y-1] = 0;
 						tenailles++; 
@@ -232,12 +232,13 @@ class Game {
 		if(tenailles > 0) {
 			this.getPlayer(this.board.playerTurn).game.nbTenailles += tenailles;
 			// Si cinq tenailles, le joueur remporte la victoire
-    	this.board.endGame = {
-    		winner : this.board.playerTurn,
-    		result : this['player' + this.board.playerTurn].name + " a remporté la partie en réussissant à effectuer 5 tenailles."
-    	};
-    	this.status = 3;
-    	//this.reinitGame();
+			if(this.getPlayer(this.board.playerTurn).game.nbTenailles >= 5) {
+		    	this.board.endGame = {
+		    		winner : this.board.playerTurn,
+		    		result : this['player' + this.board.playerTurn].name + " a remporté la partie en réussissant à effectuer 5 tenailles."
+		    	};
+		    	this.status = 3;
+		    }	
 		}
 	}
 
