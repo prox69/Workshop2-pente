@@ -54,17 +54,20 @@ class Game {
 
 	// Initialisation des données de jeu pour chaque joueur
 	initGame() {
-		var game_base = {
+		this.player1.game = {
 			nbTenailles : 0,
 			lastStrike : [],
-		}
-		this.player1.game = game_base;
-		this.player2.game = game_base;
+		};
+		this.player2.game = {
+			nbTenailles : 0,
+			lastStrike : [],
+		};
 	}
 
 	/*************** GESTION DU TERRAIN **********************/
 	// Initialisation des données du terrain
 	initBoard() {
+		var instance = this;
 		this.board = {
 			table : [
 				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -92,6 +95,10 @@ class Game {
 			nbTurns : 0,
 			lastStrike : null,
 			prolongation : false,
+			timeout : {
+				turnTimeout : setTimeout(function() { instance.endTurnTimeout() }, 10000),
+				gameTimeout : setTimeout(function() { instance.endGameTimeout() }, 600000)
+			},
 			endGame : {}
 		}
 	}
@@ -134,6 +141,7 @@ class Game {
 
 	// Passage au tour suivant
 	nextTurn() {
+		var instance = this;
 		if(this.board.playerTurn == 1) {
 			this.board.playerTurn = 2;
 		}
@@ -141,6 +149,7 @@ class Game {
 			this.board.playerTurn = 1;
 		}
 		this.board.nbTurns++;
+		this.board.timeout.turnTimeout = setTimeout(function() { instance.endTurnTimeout() }, 10000);
 	}
 
 	// Résolution des effets du coup joué
@@ -176,70 +185,73 @@ class Game {
 		for(var i = 0; i < align_result.length; i++) {
 			if(align_result[i] == 2) {
 				switch(i) {
-					case 0: if(x-3 >= 0 && this.board[x-3][y] == this.playerTurn) { 
+
+					case 0: if(x-3 >= 0 && this.board.table[x-3][y] == this.board.playerTurn) { 
 						this.board.table[x-2][y] = 0;
 						this.board.table[x-1][y] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 1: if(x-3 >= 0 && y+3 <= 18 && this.board[x-3][y+3] == this.playerTurn) { 
+					case 1: if(x-3 >= 0 && y+3 <= 18 && this.board.table[x-3][y+3] == this.board.playerTurn) { 
 						this.board.table[x-2][y+2] = 0;
 						this.board.table[x-1][y-1] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 2: if(y+3 <= 18 && this.board[x][y+3] == this.playerTurn) { 
+					case 2: if(y+3 <= 18 && this.board.table[x][y+3] == this.board.playerTurn) { 
 						this.board.table[x][y+2] = 0;
 						this.board.table[x][y+1] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 3: if(x+3 <= 18 && y+3 <= 18 && this.board[x+3][y+3] == this.playerTurn) { 
+					case 3: if(x+3 <= 18 && y+3 <= 18 && this.board.table[x+3][y+3] == this.board.playerTurn) { 
 						this.board.table[x+2][y+2] = 0;
 						this.board.table[x+1][y+1] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 4: if(x+3 <= 18 && this.board[x+3][y] == this.playerTurn) { 
+					case 4: if(x+3 <= 18 && this.board.table[x+3][y] == this.board.playerTurn) { 
 						this.board.table[x+2][y] = 0;
 						this.board.table[x+1][y] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 5: if(x+3 <= 18 && y-3 >= 0 && this.board[x+3][y-3] == this.playerTurn) { 
+					case 5: if(x+3 <= 18 && y-3 >= 0 && this.board.table[x+3][y-3] == this.board.playerTurn) { 
 						this.board.table[x+2][y-2] = 0;
 						this.board.table[x+1][y-1] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 6: if(y-3 >= 0 && this.board[x][y-3] == this.playerTurn) { 
+					case 6: if(y-3 >= 0 && this.board.table[x][y-3] == this.board.playerTurn) { 
 						this.board.table[x][y-2] = 0;
 						this.board.table[x][y-1] = 0;
 						tenailles++; 
 					} 
-					break;
-					case 7: if(y-3 >= 0 && x-3 >= 0 && this.board[x-3][y-3] == this.playerTurn) { 
+					case 7: if(y-3 >= 0 && x-3 >= 0 && this.board.table[x-3][y-3] == this.board.playerTurn) { 
 						this.board.table[x-2][y-2] = 0;
 						this.board.table[x-1][y-1] = 0;
 						tenailles++; 
 					} 
-					break;
 				}
 			}
 		}
 
 		// Ajout des tenailles
 		if(tenailles > 0) {
-			this.getPlayer(this.board.playerTurn).game.nbTenailles += tenailles;
+			this.getPlayerByNum(this.board.playerTurn).game.nbTenailles += tenailles;
 			// Si cinq tenailles, le joueur remporte la victoire
-			if(this.getPlayer(this.board.playerTurn).game.nbTenailles >= 5) {
-		    	this.board.endGame = {
-		    		winner : this.board.playerTurn,
-		    		result : this['player' + this.board.playerTurn].name + " a remporté la partie en réussissant à effectuer 5 tenailles."
-		    	};
+			if(this.getPlayerByNum(this.board.playerTurn).game.nbTenailles >= 5 || this.board.prolongation) {
+		    	this.board.endGame.winner = this.board.playerTurn;
+		    	this.board.endGame.result = this.getPlayerByNum(this.board.endGame.winner).name + " a remporté la partie en réussissant à effectuer 5 tenailles.";
 		    	this.status = 3;
 		    }	
 		}
+	}
+
+	// Fin du temps du tour
+	endTurnTimeout() {
+	    this.board.endGame.winner = this.board.playerTurn == 1 ? 2 : 1;
+	    this.board.endGame.result = this.getPlayerByNum(this.board.endGame.winner).name + " a remporté car l'adversaire a été trop lent pour jouer";
+    	this.status = 3;
+	}
+
+	// Fin du temps du jeu
+	endGameTimeout() {
+		this.board.prolongation = true;
 	}
 
 	/*************** METHODES UTILES **********************/
@@ -257,6 +269,17 @@ class Game {
 		else 
 			return false;
 	}
+
+	// Récupère les infos joueur par le numéro
+	getPlayerByNum(numJoueur) {
+		if(numJoueur == 1) 
+			return this.player1;
+		else if(numJoueur == 2)
+			return this.player2;
+		else 
+			return false;
+	}
+
 
 	// L'id joueur correspond à un joueur en partie
 	isAPlayer(idJoueur) {
