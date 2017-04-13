@@ -56,7 +56,7 @@ var load = function(mods) {
 
     /*********** PLACEMENT D'UN PION *************/
     mods.app.get("/turn/:idJoueur", function(req, res) {
-        if(global.GAME.isAPlayer(req.params.idJoueur)) {
+        if(global.GAME.isAPlayer(req.params.idJoueur) && global.GAME.status == 2) {
             var player = global.GAME.getPlayer(req.params.idJoueur);
             res.json({
                 status : player.num == global.GAME.board.playerTurn ? 1 : 0,
