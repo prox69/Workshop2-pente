@@ -149,6 +149,7 @@ class Game {
 			this.board.playerTurn = 1;
 		}
 		this.board.nbTurns++;
+		clearTimeout(this.board.timeout.turnTimeout);
 		this.board.timeout.turnTimeout = setTimeout(function() { instance.endTurnTimeout() }, 10000);
 	}
 
