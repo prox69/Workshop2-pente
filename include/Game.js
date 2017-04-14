@@ -114,7 +114,13 @@ class Game {
 			if(c_x >= 0 && c_x <= 18 && c_y >= 0 && c_y <= 18) {
 				// Case non occupée
 				if(this.board.table[c_x][c_y] == 0) {
-					return true;
+					// Premier coup au milieu
+					if(this.board.nbTurns == 0 && c_x == 9 && c_y == 9) {
+						return true;
+					}
+					else {
+						return false;
+					}
 				}
 				else {
 					return false;
