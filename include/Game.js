@@ -115,7 +115,7 @@ class Game {
 				// Case non occupée
 				if(this.board.table[c_x][c_y] == 0) {
 					// Premier coup au milieu
-					if(this.board.nbTurns == 0 && c_x == 9 && c_y == 9) {
+					if(this.board.nbTurns != 0 || (this.board.nbTurns == 0 && c_x == 9 && c_y == 9)) {
 						return true;
 					}
 					else {
